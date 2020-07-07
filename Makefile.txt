@@ -1,0 +1,11 @@
+all: server_test
+
+project:
+	cc -c project.c
+
+server_test: project.o
+	cc -o server project.o server.c -pthread
+	
+clean: 
+	rm -rf server *.o
+	
