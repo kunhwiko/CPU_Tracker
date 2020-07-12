@@ -103,3 +103,16 @@ void* get_data(){
     } 
     return NULL;
 }
+
+void* quit_program() {
+    char str[50];
+    
+    while(strcmp(str,"q") != 0){
+        printf("Press 'q' to end : \n");
+        scanf("%s",str);        
+    }   
+    pthread_mutex_lock(&lock2); 
+    quit = 1;
+    pthread_mutex_unlock(&lock2); 
+    return NULL;    
+}
