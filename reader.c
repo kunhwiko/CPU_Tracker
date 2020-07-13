@@ -32,9 +32,7 @@ void* get_data(){
     
     /* continue to print out result every 1 sec */
     while(1){
-        if(quit == 1){
-			break;
-        }
+        if(quit == 1) break; 
         
         /* only update prev if curr exists */
         if(init == 0) prev = curr;        
@@ -83,9 +81,7 @@ void* get_data(){
             
             /* if more than an hour passed, remove in FIFO order */
             data[count % 3600] = avg_usage;           
-            if (count >= 3600){
-                total -= data[count % 3600];
-            }
+            if (count >= 3600) total -= data[count % 3600];
             total += avg_usage;
             count++;
         }
