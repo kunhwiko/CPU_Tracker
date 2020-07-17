@@ -25,6 +25,9 @@ extern double total;
 extern void* get_data();
 extern void* quit_program();
 
+pthread_mutex_t lock;
+pthread_mutex_t lock2;
+
 void* start_server(void* PORT_NUMBER)
 {
     int port_num = *(int*) PORT_NUMBER;
@@ -86,6 +89,7 @@ void* start_server(void* PORT_NUMBER)
             // print it to standard out
             printf("REQUEST:\n%s\n", request);
 
+            pthread_mutex_lock(&lock);
             double avg = 0.0;
             if(count >= 3600){
                 avg = total / 3600;
@@ -121,6 +125,7 @@ void* start_server(void* PORT_NUMBER)
                 </script>\
             </body>\
             </html>", avg_usage,max,avg,avg_usage);
+            pthread_mutex_unlock(&lock); 
           
 
             // 6. send: send the outgoing message (response) over the socket
@@ -130,14 +135,17 @@ void* start_server(void* PORT_NUMBER)
             free(response);
 
             // 7. close: close the connection
+            pthread_mutex_lock(&lock2); 
             if(quit == 1){
-              close(fd);
-              close(sock);
-              printf("Server shutting down\n");
-              exit(1);
+                close(fd);
+                close(sock);
+                printf("Server shutting down\n");
+                pthread_mutex_unlock(&lock2); 
+                exit(1);
             }else{
-              close(fd);
-              printf("Server closed connection\n");
+                close(fd);
+                printf("Server closed connection\n");
+                pthread_mutex_unlock(&lock2); 
             }      
         }
     }  
