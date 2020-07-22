@@ -18,6 +18,8 @@ double avg_usage = 0.0;
 double max = 0.0;
 double total = 0.0;
 
+extern pthread_mutex_t lock;
+extern pthread_mutex_t lock2;
 int quit = 0;
 
 void* get_data(){  
@@ -32,7 +34,12 @@ void* get_data(){
     
     /* continue to print out result every 1 sec */
     while(1){
-        if(quit == 1) break; 
+        pthread_mutex_lock(&lock2); 
+        if(quit == 1){
+            pthread_mutex_unlock(&lock2); 
+            break;
+        }
+        pthread_mutex_unlock(&lock2); 
         
         /* only update prev if curr exists */
         if(init == 0) prev = curr;        
@@ -64,6 +71,7 @@ void* get_data(){
             continue;
         }
         
+        pthread_mutex_lock(&lock); 
         /* if prev data exists, calculate average usage of CPU */
         avg_usage = 100 - ((curr - prev) / 4);
         
@@ -81,10 +89,13 @@ void* get_data(){
             
             /* if more than an hour passed, remove in FIFO order */
             data[count % 3600] = avg_usage;           
-            if (count >= 3600) total -= data[count % 3600];
+            if (count >= 3600){
+                total -= data[count % 3600];
+            }
             total += avg_usage;
             count++;
         }
+        pthread_mutex_unlock(&lock); 
     
         /* sleep for 1 sec and repeat */
         fclose(fp);
@@ -100,6 +111,8 @@ void* quit_program() {
         printf("Press 'q' to end : \n");
         scanf("%s",str);        
     }   
+    pthread_mutex_lock(&lock2); 
     quit = 1;
+    pthread_mutex_unlock(&lock2); 
     return NULL;    
 }
